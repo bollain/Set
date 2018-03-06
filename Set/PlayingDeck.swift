@@ -14,13 +14,20 @@ struct PlayingDeck
     
     init() {
         //Setup initial deck of cards
-        for _ in 0..<81 {
-            let card = Card()
-            cards.append(card)
+        for color in Card.Color.options {
+            for shape in Card.Shape.options {
+                for quantity in Card.Quantity.options {
+                    for shading in Card.Shading.options {
+                        cards.append(Card(color: color, shape: shape, quantity: quantity, shading: shading))
+                    }
+                }
+            }
         }
+
+        
     }
     
-    mutating func draw(_ numberOfCards: validDraws = .three) -> [Card]? {
+    mutating func drawCards(_ numberOfCards: validDraws = .three) -> [Card]? {
         if cards.count < numberOfCards.rawValue {
             return nil
         }

@@ -11,73 +11,61 @@ import UIKit
 class ViewController: UIViewController {
 
     lazy var setEngine = Set()
-    @IBOutlet var cardButtons: [UIButton]!
+    @IBOutlet var cardButtons: [CardButton]!
     
-    @IBAction func selectCard(_ sender: UIButton) {
-        let index = cardButtons.index(of: sender)!
-        print("\(index) sent a signal")
+    @IBAction func selectCard(_ cardButton: CardButton) {
+        cardButton.stateOfCardButton = .selected
+        
+        if selectedCards.count == 3 {
+            if isSet {
+                //replace selected cards
+                if var newCards = setEngine.drawCards() {
+                    let indexSelected = selectedCards.map { cardButtons.index(of: $0)  }
+                    for index in indexSelected {
+                        cardButtons[index!].card = newCards.popLast()
+                    }
+                } else {
+                    //If no cards left in deck
+                    selectedCards.forEach { $0.stateOfCardButton = .faceDown}
+                }
+                
+            } else {
+                selectedCards.forEach { $0.stateOfCardButton = .unselected}
+            }
+        }
     }
+    
     
     @IBAction func dealCards(_ sender: UIButton) {
     }
     
     @IBOutlet weak var scoreLabel: UILabel!
     
+    var selectedCards: [CardButton] {
+        return cardButtons.filter { $0.stateOfCardButton == .selected}
+    }
+    
+    var isSet: Bool {
+        return true//setEngine.checkForSet(selectedCards.map{ $0.card! })
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         startNewGame()
     }
     
-    func initalizeButtons() {
-        for button in cardButtons {
-            button.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 0)
-            button.setTitle("", for: UIControlState.normal)
-        }
-    }
-    
-    func renderButton(_ button: UIButton){
-        
-    }
-    
     func startNewGame(){
-        initalizeButtons()
+        cardButtons.forEach { $0.card = nil}
         setEngine = Set()
         
         for index in (setEngine.dealtCards?.indices)! {
-            let button = cardButtons[index]
             let card = setEngine.dealtCards![index]
+            let cardButton = cardButtons[index]
+            cardButton.card = card
             
-            button.backgroundColor = #colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
-            let attributedString = cardToAttributedString(card)
-            button.setAttributedTitle(attributedString, for: UIControlState.normal)
+            cardButton.backgroundColor = #colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
         }
-        
     }
-    
-    func cardToAttributedString(_ card: Card) -> NSAttributedString {
-        let shape = shapes[card.shape]!
-        let returnString: String
- 
-        switch card.quantity {
-        case .one: returnString = shape
-        case .two: returnString = shape + shape
-        case .three: returnString = shape + shape + shape
-        }
-
-        
-        let attributes: [NSAttributedStringKey: Any] = [
-            .strokeColor: colors[card.color]!,
-            .foregroundColor: colors[card.color]!.withAlphaComponent(shades[card.shading]!),
-            .strokeWidth: fill[card.shading]!
-        ]
-        
-        return NSAttributedString(string: returnString, attributes: attributes)
-    }
-    
-    let shapes: [Card.Shape:String] = [.circle: "●", .square: "■", .triangle: "▲"]
-    let colors: [Card.Color:UIColor] = [.blue: #colorLiteral(red: 0, green: 0, blue: 1, alpha: 1), .red: #colorLiteral(red: 1, green: 0, blue: 0, alpha: 1), .green: #colorLiteral(red: 0, green: 1, blue: 0, alpha: 1)]
-    let shades: [Card.Shading:CGFloat] = [.empty: 0, .solid: 1, .stripe: 0.15]
-    let fill: [Card.Shading:CGFloat] = [.solid: -5, .empty: 5, .stripe: -5]
-    
 }
+
 

@@ -15,6 +15,10 @@ struct Card : Hashable {
     let quantity: Quantity
     let shading: Shading
     
+    var cardPropertiesMatrix: [Int] {
+        return [color.rawValue, shape.rawValue, quantity.rawValue, shading.rawValue]
+    }
+    
     private static var identifierFactory = 0
     let hashValue: Int = {
         identifierFactory += 1
@@ -25,15 +29,15 @@ struct Card : Hashable {
         return lhs.hashValue == rhs.hashValue
     }
     
-    init() {
-        color = Color(rawValue: Color.options.count.arc4random)!
-        shape = Shape(rawValue: Shape.options.count.arc4random)!
-        quantity = Quantity(rawValue: Quantity.options.count.arc4random)!
-        shading = Shading(rawValue: Shading.options.count.arc4random)!
+    init(color: Color, shape: Shape, quantity: Quantity, shading: Shading) {
+        self.color = color
+        self.shape = shape
+        self.quantity = quantity
+        self.shading = shading
     }
     
     enum Color: Int {
-        case red = 0
+        case red = 1
         case blue
         case green
         
@@ -41,7 +45,7 @@ struct Card : Hashable {
     }
     
     enum Shape: Int {
-        case circle = 0
+        case circle = 1
         case triangle
         case square
         
@@ -50,7 +54,7 @@ struct Card : Hashable {
     }
     
     enum Quantity: Int {
-        case one = 0
+        case one = 1
         case two
         case three
         
@@ -58,7 +62,7 @@ struct Card : Hashable {
     }
     
     enum Shading: Int {
-        case solid = 0
+        case solid = 1
         case stripe
         case empty
         
